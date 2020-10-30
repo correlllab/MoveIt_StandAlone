@@ -6,29 +6,7 @@ SET( GCC_PTHREAD_FLAGS "-lpthread -pthread" ) # This is needed for LIBIGL when u
 SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_PTHREAD_FLAGS}" ) # Append the flags                 ^^^-- *shrug* ---^^^
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_PREFIX_PATH})
-list(APPEND CMAKE_PREFIX_PATH "/opt/ros/melodic") # This solves a 
-list(APPEND CMAKE_PREFIX_PATH "/opt/ros/melodic/share/catkin/cmake")
-
-# find_package( catkin REQUIRED PATHS /opt/ros/melodic/share/catkin )
-# include_directories(SYSTEM ${CATKIN_INCLUDE_DIRS})
-
-# find_package( genmsg REQUIRED PATHS /opt/ros/melodic/share/genmsg )
-# include_directories(SYSTEM ${GENMSG_INCLUDE_DIRS})
-
-# find_package( actionlib_msgs REQUIRED PATHS /opt/ros/melodic/share/actionlib_msgs )
-# include_directories(SYSTEM ${ACTIONLIB_MSGS_INCLUDE_DIRS})
-
-# find_package( moveit_msgs REQUIRED PATHS /opt/ros/melodic/share/moveit_msgs )
-# include_directories(SYSTEM ${MOVEIT_MSGS_INCLUDE_DIRS})
-
-# find_package( moveit_core REQUIRED )
-# include_directories(SYSTEM ${MOVEIT_CORE_INCLUDE_DIRS})
-
-# find_package( eigen_stl_containers REQUIRED PATHS /usr/share/eigen_stl_containers/ )
-# include_directories(SYSTEM ${EIGEN_STL_CONTAINERS_INCLUDE_DIRS})
-
-# find_package( geometric_shapes REQUIRED PATHS /usr/share/geometric_shapes/cmake )
-# include_directories(SYSTEM ${GEOMETRIC_SHAPES_INCLUDE_DIRS})
+list(APPEND CMAKE_PREFIX_PATH "/opt/ros/melodic") # This saves a lot of `find_package`s
 
 find_package(Eigen3 REQUIRED)
 include_directories(SYSTEM ${EIGEN3_INCLUDE_DIRS})
@@ -64,6 +42,26 @@ set( EXEC_NAME test3 )
 add_executable( ${EXEC_NAME} src/moveit_test_03.cpp )
 target_link_libraries( ${EXEC_NAME} ${MOVEIT_LIBS} )
 
-# GET_PREREQUISITES( ${EXEC_NAME} )
 
-# target_link_libraries( ${EXEC_NAME} urdf )
+#### SPARE PARTS ##################################################################################
+
+# find_package( catkin REQUIRED PATHS /opt/ros/melodic/share/catkin )
+# include_directories(SYSTEM ${CATKIN_INCLUDE_DIRS})
+
+# find_package( genmsg REQUIRED PATHS /opt/ros/melodic/share/genmsg )
+# include_directories(SYSTEM ${GENMSG_INCLUDE_DIRS})
+
+# find_package( actionlib_msgs REQUIRED PATHS /opt/ros/melodic/share/actionlib_msgs )
+# include_directories(SYSTEM ${ACTIONLIB_MSGS_INCLUDE_DIRS})
+
+# find_package( moveit_msgs REQUIRED PATHS /opt/ros/melodic/share/moveit_msgs )
+# include_directories(SYSTEM ${MOVEIT_MSGS_INCLUDE_DIRS})
+
+# find_package( moveit_core REQUIRED )
+# include_directories(SYSTEM ${MOVEIT_CORE_INCLUDE_DIRS})
+
+# find_package( eigen_stl_containers REQUIRED PATHS /usr/share/eigen_stl_containers/ )
+# include_directories(SYSTEM ${EIGEN_STL_CONTAINERS_INCLUDE_DIRS})
+
+# find_package( geometric_shapes REQUIRED PATHS /usr/share/geometric_shapes/cmake )
+# include_directories(SYSTEM ${GEOMETRIC_SHAPES_INCLUDE_DIRS})
