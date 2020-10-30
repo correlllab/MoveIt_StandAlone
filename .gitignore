@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# make
+build/
+
+# VS Code
+.vscode/
