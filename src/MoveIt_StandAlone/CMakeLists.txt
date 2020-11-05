@@ -41,12 +41,12 @@ set( MOVEIT_SO_VRS 1.0.6 )
 
 set( MOVEIT_LIBS 
   ${ROS_LIBS}/libmoveit_kinematics_plugin_loader.so.${MOVEIT_SO_VRS}
-  ${ROS_LIBS}/libmoveit_robot_model_loader.so.1.0.6 
-  ${ROS_LIBS}/libmoveit_robot_model.so.1.0.6
-  ${ROS_LIBS}/libmoveit_robot_state.so.1.0.6
-  ${ROS_LIBS}/libmoveit_profiler.so.1.0.6
-  ${ROS_LIBS}/libmoveit_rdf_loader.so.1.0.6
-  ${ROS_LIBS}/libmoveit_kinematics_base.so.1.0.6
+  ${ROS_LIBS}/libmoveit_robot_model_loader.so.${MOVEIT_SO_VRS}
+  ${ROS_LIBS}/libmoveit_robot_model.so.${MOVEIT_SO_VRS}
+  ${ROS_LIBS}/libmoveit_robot_state.so.${MOVEIT_SO_VRS}
+  ${ROS_LIBS}/libmoveit_profiler.so.${MOVEIT_SO_VRS}
+  ${ROS_LIBS}/libmoveit_rdf_loader.so.${MOVEIT_SO_VRS}
+  ${ROS_LIBS}/libmoveit_kinematics_base.so.${MOVEIT_SO_VRS}
   ${ROS_LIBS}/libclass_loader.so
   ${ROS_LIBS}/libroscpp.so
   ${ROS_LIBS}/librosconsole.so
