@@ -33,6 +33,7 @@
 
 # make
 build/
+devel/
 
 # VS Code
 .vscode/
