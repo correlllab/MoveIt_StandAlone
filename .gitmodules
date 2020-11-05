@@ -1,3 +1,6 @@
 [submodule "src/trac_ik"]
 	path = src/trac_ik
 	url = https://github.com/HIRO-group/trac_ik.git
+[submodule "src/universal_robot"]
+	path = src/universal_robot
+	url = https://github.com/ros-industrial/universal_robot.git

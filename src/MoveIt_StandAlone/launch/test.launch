@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <param name="robot_description" textfile="$(find moveittest)/resource/ur5.urdf"/>
+
+  <!-- <node name="motor" pkg="canopen_motor_node" type="canopen_motor_node">
+    <rosparam command="load" file="$(find can_test)/config/can_config.yaml" />
+  </node> -->
+</launch>
