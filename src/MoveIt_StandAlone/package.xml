@@ -6,7 +6,7 @@
 	<!-- There are a minimal set of tags that need to be nested within the <package> tag to make the package manifest complete. -->
 
 	<!-- REQ'D: <name> - The name of the package -->
-	<name>moveittest</name>
+	<name>ur_motion_planning</name>
 
 	<!-- REQ'D: <version> - The version number of the package (required to be 3 dot-separated integers) -->
 	<version>2020.11.4</version>
@@ -45,8 +45,8 @@
 	<!-- build_depend>rospy</build_depend -->
 	<!-- build_depend>tf2</build_depend -->
 	<!-- build_depend>tf2_ros</build_depend -->
-	<!-- build_depend>message_generation</build_depend -->
-	<!-- build_depend>std_msgs</build_depend -->
+	<build_depend>message_generation</build_depend>
+	<build_depend>std_msgs</build_depend>
 	<!-- build_depend>visualization_msgs</build_depend -->
 	<!-- build_depend>geometry_msgs</build_depend -->
     <!-- build_depend>sensor_msgs</build_depend -->
@@ -62,14 +62,14 @@
 	<run_depend>cmake_modules</run_depend>
 	<run_depend>roslib</run_depend>
 	<run_depend>roscpp</run_depend>
-	<run_depend>rospy</run_depend>
-	<run_depend>tf2</run_depend>
-	<run_depend>tf2_ros</run_depend>
+	<!-- <run_depend>rospy</run_depend> -->
+	<!-- <run_depend>tf2</run_depend> -->
+	<!-- <run_depend>tf2_ros</run_depend> -->
 	<run_depend>message_runtime</run_depend>
 	<run_depend>std_msgs</run_depend>
-	<run_depend>visualization_msgs</run_depend>
-	<run_depend>geometry_msgs</run_depend>
-    <run_depend>sensor_msgs</run_depend>
+	<!-- <run_depend>visualization_msgs</run_depend> -->
+	<!-- <run_depend>geometry_msgs</run_depend> -->
+    <!-- <run_depend>sensor_msgs</run_depend> -->
 
 	<!-- Test Dependencies specify only additional dependencies for unit tests. 
 		 They should never duplicate any dependencies already mentioned as build or run dependencies. -->

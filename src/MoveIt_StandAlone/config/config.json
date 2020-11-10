@@ -1,0 +1,8 @@
+{
+    "UR_FKrequest_TOPIC"  : "UR_FK_IK/FKreq" ,
+    "UR_IKrequest_TOPIC"  : "UR_FK_IK/IKreq" ,
+    "UR_FKresponse_TOPIC" : "UR_FK_IK/FKrsp" ,
+    "UR_IKresponse_TOPIC" : "UR_FK_IK/IKrsp" ,
+    "URDF"                : "resource/ur5.urdf" , 
+    "SRDF"                : "resource/ur5.srdf"
+}
