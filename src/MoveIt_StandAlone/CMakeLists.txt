@@ -106,6 +106,9 @@ generate_messages( DEPENDENCIES std_msgs )
 
 ########### EXECUTABLES ###########
 
+# Files and Paths #
+set( HLPR_CPP src/helpers.cpp )
+
 set( EXEC_NAME test1 )
 add_executable( ${EXEC_NAME} src/moveit_test_01.cpp )
 
@@ -126,7 +129,7 @@ add_executable( ${EXEC_NAME} src/moveit_test_05.cpp )
 target_link_libraries( ${EXEC_NAME} ${ROS_LIBS} ${catkin_LIBRARIES} )
 
 set( EXEC_NAME FK_IK )
-add_executable( ${EXEC_NAME} src/${EXEC_NAME}.cpp )
+add_executable( ${EXEC_NAME} src/${EXEC_NAME}.cpp ${HLPR_CPP} )
 add_dependencies( ${EXEC_NAME} ${PROJECT_NAME}_generate_messages_cpp )
 target_link_libraries( ${EXEC_NAME} ${ROS_LIBS} ${OTHER_LIBS} ${catkin_LIBRARIES} )
 

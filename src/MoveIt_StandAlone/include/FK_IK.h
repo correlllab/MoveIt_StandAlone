@@ -14,54 +14,91 @@
 #ifndef FK_IK_H
 #define FK_IK_H
 
-#include "helpers.h"
 
+/***** Included Libs *****/
+
+/** Standard **/
 #include <fstream>
 using std::ifstream;
+#include <exception>
 
+/** Parsing **/
 #include <boost/date_time.hpp>
 #include <tinyxml.h>
 #include <jsoncpp/json/json.h>
 
+/** Basic ROS **/
 #include <ros/ros.h>
 #include <ros/package.h>
+
+/** FK/IK/MP **/
+#include <moveit/robot_model_loader/robot_model_loader.h>
+#include <moveit/robot_model/robot_model.h>
+#include <moveit/robot_state/robot_state.h>
 
 #include <trac_ik/trac_ik.hpp>
 #include <kdl/chainiksolverpos_nr_jl.hpp>
 #include <kdl_parser/kdl_parser.hpp>
 #include <urdf/model.h>
 
+/** Messages **/
 #include <ur_motion_planning/FK_req.h>
 #include <ur_motion_planning/FK_rsp.h>
 #include <ur_motion_planning/FK.h>
 
+/** Transforms **/
+#include <Eigen/Geometry>
+
+
+#include "helpers.h"
 
 void IK_cb();
 
+/*************** class FK_IK_Service ***************/
+
 class FK_IK_Service{
-public:
+
+/***** Public *****/ public:
 
 ros::ServiceServer FKservice;
 ros::ServiceServer IKservice;
 
-FK_IK_Service( ros::NodeHandle* nodehandle );
+FK_IK_Service( ros::NodeHandle& _nh );
 
-void init_subscribers();
-void init_services();
+bool FK_cb( ur_motion_planning::FK::Request& req, ur_motion_planning::FK::Response& rsp );
 
-void FK_cb( ur_motion_planning::FK_req& request, ur_motion_planning::FK_rsp& response );
+bool init_services();
 
-protected:
+bool load_q( const ur_motion_planning::FK_req& q );
 
-ros::NodeHandle nh_; // we will need this, to pass between "main" and constructor
+~FK_IK_Service();
 
-string FK_req_topicName ,
-       IK_req_topicName ,
-       FK_rsp_topicName ,
-       IK_rsp_topicName ,
+/***** Protected *****/ protected:
+
+ros::NodeHandle _nh; // we will need this, to pass between "main" and constructor
+
+string FK_req_topicName     ,
+       IK_req_topicName     ,
+       FK_rsp_topicName     ,
+       IK_rsp_topicName     ,
+       URDF_full_path       ,
+       SRDF_full_path       ,
+       KDL_joint_group_name ,
+       end_link_name        , 
        _PKG_NAME        = "ur_motion_planning";
 
-void load_JSON_config();
+bool   pathsOK = false;
+
+u_char N_joints;
+
+robot_model_loader::RobotModelLoader::Options opt;
+robot_model_loader::RobotModelLoader /*----*/ robot_model;
+robot_model::RobotModelPtr /*--------------*/ kinematic_model;
+robot_state::JointModelGroup* /*-----------*/ joint_model_group_ptr;
+robot_state::RobotStatePtr /*--------------*/ kinematic_state_ptr;
+
+bool load_JSON_config();
+bool setup_FK();
 
 
 

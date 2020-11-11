@@ -120,7 +120,6 @@ int main(int argc, char** argv){
         cout << "Link " << i << ": " << link_names[i] << endl;
     }
 
-
     kinematic_state->setToRandomPositions( joint_model_group );
 
     std::vector<double> joint_values;
