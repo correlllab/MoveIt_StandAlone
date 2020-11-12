@@ -46,7 +46,7 @@ bool check_exist( string path , string check ){
 string yesno( bool condition ){  return ( condition ? "YES" : "NO" );  }
 
 Eigen::Matrix4d Affine3d_to_homog( const Eigen::Affine3d& xform ){
-
+    bool _DEBUG = 1;
     // https://stackoverflow.com/a/15528871
     Eigen::Matrix3d R = xform.rotation();
     // Find your Rotation Matrix
@@ -56,6 +56,10 @@ Eigen::Matrix4d Affine3d_to_homog( const Eigen::Affine3d& xform ){
     Trans.setIdentity();   // Set to Identity to make bottom row of Matrix 0,0,0,1
     Trans.block<3,3>(0,0) = R;
     Trans.block<3,1>(0,3) = T;
+
+    if( _DEBUG ){
+        cout << "Rotation:" << endl << R << endl << "Translation:" << endl << T << endl;
+    }
 
     return Trans;
 }

@@ -7,6 +7,7 @@
 #include <string>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <boost/array.hpp>
 
 /** Transforms **/
 #include <Eigen/Geometry>
@@ -14,6 +15,7 @@
 using std::string;
 using std::cout;
 using std::endl;
+using std::ostream;
 
 // typedef Eigen::MatrixXd<double,4,4,RowMajor> matx4d;
 
@@ -26,5 +28,18 @@ bool check_exist( string path , string check ); // Use `stat` to check if someth
 string yesno( bool condition ); // Return a string that describes the binary state
 
 Eigen::Matrix4d Affine3d_to_homog( const Eigen::Affine3d& xform );
+
+template<typename T, std::size_t N> // NOTE: Templated functions must have their definition in the header file
+ostream& operator<<( ostream& os , const boost::array<T,N>& vec ){ // ostream '<<' operator for vectors
+    // NOTE: This function assumes that the ostream '<<' operator for T has already been defined
+    size_t len = vec.size();
+    os << "[ ";
+    for (size_t i = 0; i < len; i++) {
+        os << vec[i];
+        if (i + 1 < len) { os << ", "; }
+    }
+    os << " ]";
+    return os; // You must return a reference to the stream!
+}
 
 #endif

@@ -82,8 +82,8 @@ int main(int argc, char** argv){
 
     ros::init(argc, argv, "FK_IK");
 
-    string URDF = get_file_string( "/media/jwatson/FILEPILE/Cpp/ws_MoveIt/src/MoveIt_StandAlone/resource/ur5.urdf" );
-    string SRDF = get_file_string( "/media/jwatson/FILEPILE/Cpp/ws_MoveIt/src/MoveIt_StandAlone/resource/ur5.srdf" );
+    string URDF = get_file_string( "/home/jwatson/MoveIt_StandAlone/src/MoveIt_StandAlone/resource/ur5.urdf" );
+    string SRDF = get_file_string( "/home/jwatson/MoveIt_StandAlone/src/MoveIt_StandAlone/resource/ur5.srdf" );
 
     robot_model_loader::RobotModelLoader::Options opt( URDF , SRDF );
     robot_model_loader::RobotModelLoader model( opt );
@@ -129,13 +129,13 @@ int main(int argc, char** argv){
 
     for(std::size_t i = 0; i < joint_names.size(); ++i){
         cout << "Check " << i << endl;
+        joint_values[i] = 0.0;
         printf("Joint %s: %f\n", joint_names[i].c_str(), joint_values[i]);
-        // joint_values[i] = 0.5;
     }
 
+    kinematic_state->setJointGroupPositions(joint_model_group, joint_values);
     cout << "Is this a valid configuration?: " << kinematic_state->satisfiesBounds() << endl;
 
-    // kinematic_state->setJointGroupPositions(joint_model_group, joint_values);
 
     
     const Eigen::Affine3d &end_effector_state = kinematic_state->getGlobalLinkTransform("wrist_3_link");

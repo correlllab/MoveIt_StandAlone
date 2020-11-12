@@ -1,9 +1,9 @@
 /*
 ~~~ DEV PLAN ~~~
-[~] Config file
-    [ ] Make a relative ROS path
-[ ] FK Service
-    [ ] Test
+[Y] Config file
+    [Y] Make a relative ROS path
+[Y] FK Service
+    [Y] Test
 [ ] IK Service
     [ ] Test
 [ ] Test: Feed FK to IK
@@ -21,6 +21,7 @@
 #include <fstream>
 using std::ifstream;
 #include <exception>
+#include <signal.h>
 
 /** Parsing **/
 #include <boost/date_time.hpp>
@@ -30,6 +31,7 @@ using std::ifstream;
 /** Basic ROS **/
 #include <ros/ros.h>
 #include <ros/package.h>
+#include <ros/xmlrpc_manager.h>
 
 /** FK/IK/MP **/
 #include <moveit/robot_model_loader/robot_model_loader.h>
@@ -49,7 +51,7 @@ using std::ifstream;
 /** Transforms **/
 #include <Eigen/Geometry>
 
-
+/** Local **/
 #include "helpers.h"
 
 void IK_cb();
@@ -77,10 +79,8 @@ bool load_q( const ur_motion_planning::FK_req& q );
 
 ros::NodeHandle _nh; // we will need this, to pass between "main" and constructor
 
-string FK_req_topicName     ,
-       IK_req_topicName     ,
-       FK_rsp_topicName     ,
-       IK_rsp_topicName     ,
+string FK_srv_topicName     ,
+       IK_srv_topicName     ,
        URDF_full_path       ,
        SRDF_full_path       ,
        KDL_joint_group_name ,

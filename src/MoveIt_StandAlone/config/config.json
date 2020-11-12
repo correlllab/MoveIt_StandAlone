@@ -1,8 +1,6 @@
 {
-    "UR_FKrequest_TOPIC"  : "UR_FK_IK/FKreq"    ,
-    "UR_IKrequest_TOPIC"  : "UR_FK_IK/IKreq"    ,
-    "UR_FKresponse_TOPIC" : "UR_FK_IK/FKrsp"    ,
-    "UR_IKresponse_TOPIC" : "UR_FK_IK/IKrsp"    ,
+    "UR_FKservice_TOPIC"  : "UR_FK_IK/FKsrv"    ,
+    "UR_IKservice_TOPIC"  : "UR_FK_IK/IKsrv"    ,
     "URDF"                : "resource/ur5.urdf" , 
     "SRDF"                : "resource/ur5.srdf" ,
     "FK_joint_group_name" : "manipulator"       ,
