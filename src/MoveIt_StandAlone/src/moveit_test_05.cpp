@@ -259,7 +259,7 @@ int main(int argc, char** argv)
    TiXmlDocument urXML;
 //    urXML.LoadFile( "/media/jwatson/FILEPILE/Cpp/ws_MoveIt/src/MoveIt_StandAlone/resource/ur5.urdf" );
 
-   urXML.LoadFile( "/media/jwatson/FILEPILE/Cpp/ws_MoveIt/src/MoveIt_StandAlone/resource/ur5.urdf" );
+   urXML.LoadFile( "/home/jwatson/MoveIt_StandAlone/src/MoveIt_StandAlone/resource/ur5.urdf" );
 
    if ( !my_model.initXml( &urXML ) ){
       ROS_ERROR("TEST: Failed to parse urdf robot model");

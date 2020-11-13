@@ -48,13 +48,24 @@ using std::ifstream;
 #include <ur_motion_planning/FK_rsp.h>
 #include <ur_motion_planning/FK.h>
 
+#include <ur_motion_planning/IK_req.h>
+#include <ur_motion_planning/IK_rsp.h>
+#include <ur_motion_planning/IK.h>
+
 /** Transforms **/
 #include <Eigen/Geometry>
 
 /** Local **/
 #include "helpers.h"
 
-void IK_cb();
+/*************** Helper Functions ***************/
+
+// KDL::JntArray result;
+// KDL::Frame end_effector_pose;
+
+KDL::Frame request_arr_to_KDL_frame( const boost::array<double,16>& pose ); // Translate a flattened pose to a KDL pose
+
+boost::array<double,6> KDL_arr_to_response_arr( const KDL::JntArray& jntArr );
 
 /*************** class FK_IK_Service ***************/
 
@@ -68,6 +79,7 @@ ros::ServiceServer IKservice;
 FK_IK_Service( ros::NodeHandle& _nh );
 
 bool FK_cb( ur_motion_planning::FK::Request& req, ur_motion_planning::FK::Response& rsp );
+bool IK_cb( ur_motion_planning::IK::Request& req, ur_motion_planning::IK::Response& rsp );
 
 bool init_services();
 
@@ -83,7 +95,9 @@ string FK_srv_topicName     ,
        IK_srv_topicName     ,
        URDF_full_path       ,
        SRDF_full_path       ,
+       URDF_contents        ,
        KDL_joint_group_name ,
+       base_link_name       , 
        end_link_name        , 
        _PKG_NAME        = "ur_motion_planning";
 
@@ -94,11 +108,18 @@ u_char N_joints;
 robot_model_loader::RobotModelLoader::Options opt;
 robot_model_loader::RobotModelLoader /*----*/ robot_model;
 robot_model::RobotModelPtr /*--------------*/ kinematic_model;
-robot_state::JointModelGroup* /*-----------*/ joint_model_group_ptr;
+robot_state::JointModelGroup* /*-----------*/ joint_model_group_ptr = nullptr;
 robot_state::RobotStatePtr /*--------------*/ kinematic_state_ptr;
+
+TRAC_IK::TRAC_IK* tracik_solver = nullptr;
+u_short /*----*/ N_IKsamples;
+double /*-----*/ IK_timeout   , 
+                 IK_epsilon   ,
+                 IK_seed_fuzz ;
 
 bool load_JSON_config();
 bool setup_FK();
+bool setup_IK();
 
 
 

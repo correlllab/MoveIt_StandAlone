@@ -4,5 +4,10 @@
     "URDF"                : "resource/ur5.urdf" , 
     "SRDF"                : "resource/ur5.srdf" ,
     "FK_joint_group_name" : "manipulator"       ,
-    "end_link"            : "wrist_3_link"
+    "base_link"           : "base_link"         ,
+    "end_link"            : "wrist_3_link"      , 
+    "N_IKsamples"         : 10                  ,
+    "IK_timeout"          : 0.005               ,
+    "IK_epsilon"          : 1e-4                ,
+    "IK_seed_fuzz"        : 0.1745
 }

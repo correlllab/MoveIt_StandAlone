@@ -40,3 +40,6 @@ logs/
 
 # VS Code
 .vscode/
+
+# Troubleshooting
+errDump.txt
