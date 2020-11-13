@@ -6,8 +6,8 @@
     "FK_joint_group_name" : "manipulator"       ,
     "base_link"           : "base_link"         ,
     "end_link"            : "wrist_3_link"      , 
-    "N_IKsamples"         : 10                  ,
-    "IK_timeout"          : 0.005               ,
+    "N_IKsamples"         : 5                   ,
+    "IK_timeout"          : 0.003               ,
     "IK_epsilon"          : 1e-4                ,
-    "IK_seed_fuzz"        : 0.1745
+    "IK_seed_fuzz"        : 0.0524
 }

@@ -119,7 +119,7 @@ class FK_IK_Tester:
             if 0:
                 IKreq.q_seed = [ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]
             else:
-                IKreq.q_seed = FKreq.q_joints
+                IKreq.q_seed = np.add( FKreq.q_joints , [ rand_lo_hi( -pi/180 , +pi/180 ) for i in range(6) ] )
             print IKreq.pose
             IKrsp = self.IKsrv( IKreq )
             # print dir( IKrsp )
