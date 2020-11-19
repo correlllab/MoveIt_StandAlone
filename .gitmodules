@@ -4,6 +4,3 @@
 [submodule "src/universal_robot"]
 	path = src/universal_robot
 	url = https://github.com/ros-industrial/universal_robot.git
-[submodule "src/catkin_tutorials"]
-	path = src/catkin_tutorials
-	url = https://github.com/ros/catkin_tutorials.git
