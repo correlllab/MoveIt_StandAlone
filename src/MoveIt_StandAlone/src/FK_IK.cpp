@@ -1,6 +1,6 @@
 #include "FK_IK.h"
 
-static bool _DEBUG = 1; // File-wide debug flag
+static bool _DEBUG = 1; // File-wide debug flag 
 
 /*************** Helper Functions ***************/
 
