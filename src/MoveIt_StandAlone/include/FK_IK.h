@@ -83,41 +83,50 @@ bool IK_cb( ur_motion_planning::IK::Request& req, ur_motion_planning::IK::Respon
 
 bool init_services();
 
-bool load_q( const ur_motion_planning::FK_req& q );
+bool load_q( const ur_motion_planning::FK_req& q ); // Load joint config from an FK request
+bool check_q(); // Check that the currently-set joint config lies within the limits
 
 ~FK_IK_Service();
 
 /***** Protected *****/ protected:
 
-ros::NodeHandle _nh; // we will need this, to pass between "main" and constructor
+/** ROS Node **/
+ros::NodeHandle _nh; 
 
+/** JSON Params **/
 string FK_srv_topicName     ,
        IK_srv_topicName     ,
        URDF_full_path       ,
        SRDF_full_path       ,
        URDF_contents        ,
-       KDL_joint_group_name ,
        base_link_name       , 
        end_link_name        , 
        _PKG_NAME        = "ur_motion_planning";
 
-bool   pathsOK = false;
+/** Flags **/
+bool pathsOK = false;
 
-u_char N_joints;
+/** Robot Description **/
+KDL::Chain    chain; // ---- Kin chain
+u_char /*--*/ N_joints; // # of joints in the kin chain
+KDL::JntArray ll , // ------ lower joint limits
+              ul , // ------ upper joint limits
+              q  ; // ------ Current joint config
 
-robot_model_loader::RobotModelLoader::Options opt;
-robot_model_loader::RobotModelLoader /*----*/ robot_model;
-robot_model::RobotModelPtr /*--------------*/ kinematic_model;
-robot_state::JointModelGroup* /*-----------*/ joint_model_group_ptr = nullptr;
-robot_state::RobotStatePtr /*--------------*/ kinematic_state_ptr;
+/** FK Solver **/
+KDL::ChainFkSolverPos_recursive* fk_solver; //(chain); // Forward kin. solver
 
+/** IK Solver and Params **/
 TRAC_IK::TRAC_IK* tracik_solver = nullptr;
 u_short /*----*/ N_IKsamples;
 double /*-----*/ IK_timeout   , 
                  IK_epsilon   ,
                  IK_seed_fuzz ;
 
+/** Internal Functions **/
 bool load_JSON_config();
+bool load_URDF_SRDF();
+bool setup_kin_chain();
 bool setup_FK();
 bool setup_IK();
 
