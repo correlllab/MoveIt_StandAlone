@@ -13,7 +13,7 @@ Note: Here you are adding the ROS repos but not actually installing ROS
 
 1. *term$* `sudo apt update`
 
-1. *term$* `sudo apt install ros-melodic-moveit-core ros-melodic-moveit-kinematics ros-melodic-moveit-msgs ros-melodic-xacro rosbash ros-melodic-tf-conversions ros-melodic-roscpp ros-melodic-cmake-modules ros-melodic-trac-ik-kinematics-plugin python-catkin-tools liburdf0d liburdf-dev liburdfdom-headers-dev liborocos-kdl1.3 liborocos-kdl-dev libkdl-parser0d libkdl-parser-dev`
+1. *term$* `sudo apt install ros-melodic-moveit-core ros-melodic-moveit-kinematics ros-melodic-moveit-msgs ros-melodic-xacro rosbash ros-melodic-tf-conversions ros-melodic-roscpp ros-melodic-cmake-modules ros-melodic-trac-ik-kinematics-plugin python-catkin-tools liburdf0d liburdf-dev liburdfdom-headers-dev liborocos-kdl1.3 liborocos-kdl-dev libkdl-parser0d libkdl-parser-dev swig`
 
 1. *term$* `sudo apt install libeigen-stl-containers-dev libgeometric-shapes-dev`
 
@@ -28,8 +28,10 @@ Note: Here you are adding the ROS repos but not actually installing ROS
 1. *term$* `echo 'source /opt/ros/melodic/setup.bash' >> ~/.bashrc`
 
 ## Build MoveIt! ROS Package
-1. *term$* `git clone --recurse-submodules --remote-submodules https://github.com/correlllab/MoveIt_StandAlone.git`  
+1. *term$* `git clone --recurse-submodules https://github.com/correlllab/MoveIt_StandAlone.git`  
 (This repo)
+
+1. *term$* `cd MoveIt_StandAlone`
 
 1. *term$* `cd MoveIt_StandAlone`
 
