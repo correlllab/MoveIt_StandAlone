@@ -78,13 +78,16 @@ ros::ServiceServer IKservice;
 
 FK_IK_Service( ros::NodeHandle& _nh );
 
+bool /*-*/ load_q( const boost::array<double,6>& q ); // Load joint config from an FK request
+KDL::Frame calc_FK( const boost::array<double,6>& jointConfig );
+bool /*-*/ check_q(); // Check that the currently-set joint config lies within the limits
+
+boost::array<double,7> calc_IK( const boost::array<double,22>& );
+
 bool FK_cb( ur_motion_planning::FK::Request& req, ur_motion_planning::FK::Response& rsp );
 bool IK_cb( ur_motion_planning::IK::Request& req, ur_motion_planning::IK::Response& rsp );
 
 bool init_services();
-
-bool load_q( const ur_motion_planning::FK_req& q ); // Load joint config from an FK request
-bool check_q(); // Check that the currently-set joint config lies within the limits
 
 ~FK_IK_Service();
 

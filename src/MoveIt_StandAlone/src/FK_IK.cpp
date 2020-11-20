@@ -22,7 +22,7 @@ KDL::Frame request_arr_to_KDL_frame( const boost::array<double,16>& pose ){
     );
 }
 
-const boost::array<double,16> KDL_frame_to_response_arr( KDL::Frame& pose ){
+boost::array<double,16> KDL_frame_to_response_arr( const KDL::Frame& pose ){
     // Translate a KDL pose to a flattened pose
     boost::array<double,16> rtnArr;
     u_char k = 0;
@@ -37,6 +37,16 @@ const boost::array<double,16> KDL_frame_to_response_arr( KDL::Frame& pose ){
 boost::array<double,6> KDL_arr_to_response_arr( const KDL::JntArray& jntArr ){
     boost::array<double,6> rtnArr;
     for( size_t i = 0 ; i < 6 ; i++ ){  rtnArr[i] = jntArr(i);  }
+    return rtnArr;
+}
+
+boost::array<double,7> KDL_arr_to_response_arr2( const KDL::JntArray& jntArr , int valid ){
+    boost::array<double,7> rtnArr;
+    for( size_t i = 0 ; i < 6 ; i++ ){  
+        rtnArr[i] = jntArr(i);  
+        if( _DEBUG )  cout << '\t' << i << endl;
+    }
+    rtnArr[6] = (double) valid;
     return rtnArr;
 }
 
@@ -210,64 +220,95 @@ bool FK_IK_Service::check_q(){
     return true;
 }
 
-bool FK_IK_Service::load_q( const ur_motion_planning::FK_req& Q ){
+bool FK_IK_Service::load_q( const boost::array<double,6>& Q ){
 
     double val = -50.0;
 
     if( _DEBUG ){
         cout << "Setting the joint model!" << endl;
-        cout << "Got a vector with " << Q.q_joints.size() << " elements." << endl;
+        cout << "Got a vector with " << Q.size() << " elements." << endl;
     }  
 
-    for( u_char i = 0 ; i < N_joints ; i++ ){  q(i) = Q.q_joints[i];  }
+    for( u_char i = 0 ; i < N_joints ; i++ ){  q(i) = Q[i];  }
 
     return check_q();
 }
 
-bool FK_IK_Service::FK_cb( ur_motion_planning::FK::Request& req, ur_motion_planning::FK::Response& rsp ){
-
-    bool /*-*/ valid  = load_q( req.req );
+KDL::Frame FK_IK_Service::calc_FK( const boost::array<double,6>& jointConfig ){
+    bool /*-*/ valid  = load_q( jointConfig );
     KDL::Frame end_effector_pose;
-
-    if( _DEBUG )  cout << "FK service invoked!" << endl;
-
     if( valid ){
-
         fk_solver->JntToCart( q , end_effector_pose );
-
-        rsp.rsp.pose = KDL_frame_to_response_arr( end_effector_pose );
-        
-        if( _DEBUG )  cout << "FK packed a response: " << rsp.rsp.pose << endl;
-
-        return true;
     }else{
         ROS_ERROR( "Received an FK request OUTSIDE of loaded robot's joint limits!" );
-        return false;
     }
+    return end_effector_pose;
+}
+
+bool FK_IK_Service::FK_cb( ur_motion_planning::FK::Request& req, ur_motion_planning::FK::Response& rsp ){
+    if( _DEBUG )  cout << "FK service invoked!" << endl;
+    
+    rsp.rsp.pose = KDL_frame_to_response_arr(  calc_FK( req.req.q_joints )  );
+    
+    if( _DEBUG )  cout << "FK packed a response: " << rsp.rsp.pose << endl;
+}
+
+boost::array<double,7> FK_IK_Service::calc_IK( const boost::array<double,22>& bigIKarr ){
+    
+    boost::array<double,16> reqPose;
+    boost::array<double, 6> reqSeed;
+    // boost::array<double,7>  rtnQjnt;
+    
+    for( u_char i = 0 ; i < 22 ; i++ ){
+        if( i < 16 ){
+            reqPose[ i    ] = bigIKarr[i];
+        }else{
+            reqSeed[ i-16 ] = bigIKarr[i];
+        }
+    }
+
+    KDL::Frame    reqFrame = request_arr_to_KDL_frame( reqPose );
+    KDL::JntArray seedArr  = request_arr_to_KDL_arr( reqSeed );
+    KDL::JntArray result;
+    int /*-----*/ valid = 0;
+
+    if( _DEBUG )  cout << "Request vars loaded!" << endl;
+
+    for( size_t i = 0 ; i < N_IKsamples ; i++ ){
+        valid = tracik_solver->CartToJnt( seedArr , reqFrame , result );
+        if( valid > 0 )
+            break;
+        else
+            fuzz_seed_array( seedArr , IK_seed_fuzz );
+    }
+
+    return KDL_arr_to_response_arr2( result , valid );
+}
+
+void unpack_IK( const boost::array<double,7>& ans , boost::array<double,6>& Qjnt , int& valid ){
+    for( u_char i = 0 ; i < 6 ; i++ ){  Qjnt[i] = ans[i];  }
+    valid = (int) ans[6];
 }
 
 bool FK_IK_Service::IK_cb( ur_motion_planning::IK::Request& req, ur_motion_planning::IK::Response& rsp ){
 
     if( _DEBUG )  cout << "Entered the IK callback!" << endl;
 
-    KDL::Frame    reqFrame = request_arr_to_KDL_frame( req.req.pose );
-    KDL::JntArray seedArr  = request_arr_to_KDL_arr( req.req.q_seed );
-    KDL::JntArray result;
-
-    if( _DEBUG )  cout << "Request vars loaded!" << endl;
-
-    for( size_t i = 0 ; i < N_IKsamples ; i++ ){
-        rsp.rsp.valid = tracik_solver->CartToJnt( seedArr , reqFrame , result );
-        if( rsp.rsp.valid > 0 )
-            break;
-        else
-            fuzz_seed_array( seedArr , IK_seed_fuzz );
+    boost::array<double,22> bigIKarr;
+    for( u_char i = 0 ; i < 22 ; i++ ){
+        if( _DEBUG )  cout << (int) i << ", " << (int) i-16 << endl;
+        if( i < 16 ){
+            bigIKarr[i] = req.req.pose[i];
+        }else{
+            bigIKarr[i] = req.req.q_seed[i-16];
+        }
     }
 
-    if( _DEBUG )  cout << "Valid solution?: " << yesno( rsp.rsp.valid ) << ", ";
+    boost::array<double,7> ans = calc_IK( bigIKarr );
+    
+    unpack_IK( ans , rsp.rsp.q_joints , rsp.rsp.valid );
 
-    rsp.rsp.q_joints = KDL_arr_to_response_arr( result );
-
+    if( _DEBUG )  cout << "Valid solution?: " << yesno( rsp.rsp.valid > 0 ) << ", ";
     if( _DEBUG )  cout << "Solution Obtained: " << rsp.rsp.q_joints << endl;
 
     return ( rsp.rsp.valid > 0 );
