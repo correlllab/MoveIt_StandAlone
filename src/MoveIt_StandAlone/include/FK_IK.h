@@ -4,11 +4,14 @@
     [Y] Make a relative ROS path
 [Y] FK Service
     [Y] Test
-[ ] IK Service
-    [ ] Test
-[ ] Test: Feed FK to IK
-    [ ] Find out if I had to change the input pose to the robot basis somehow
-[ ] Confer with Davis to test ROS Bridge
+[Y] IK Service
+    [Y] Test
+[Y] Test: Feed FK to IK
+    [Y] Find out if I had to change the input pose to the robot basis somehow
+[~] Confer with Davis to test ROS Bridge
+    [ ] Check if Isaac ROS bridge can subscribe to services
+    [ ] If not, then implement basic msg Subscribers/Publishers
+    [ ] Create example file
 */
 
 #ifndef FK_IK_H
