@@ -29,6 +29,7 @@ boost::array<double,16> KDL_frame_to_response_arr( const KDL::Frame& pose ){
     for( int i = 0 ; i < 4 ; i++ ){
         for( int j = 0 ; j < 4 ; j++ ){
             rtnArr[k] = pose( i , j );
+            k++;
         }
     }
     return rtnArr;
@@ -75,6 +76,7 @@ FK_IK_Service::FK_IK_Service( ros::NodeHandle& _nh ){
     setup_FK();
     setup_IK();
     init_services();
+    init_pub_sub();
 }
 
 bool FK_IK_Service::load_JSON_config(){
@@ -97,6 +99,10 @@ bool FK_IK_Service::load_JSON_config(){
         // Topics
         FK_srv_topicName = obj[ "UR_FKservice_TOPIC"  ].asString();
         IK_srv_topicName = obj[ "UR_IKservice_TOPIC"  ].asString();
+        FK_req_topicName = obj[ "UR_FKreq_TOPIC"  ].asString();
+        FK_rsp_topicName = obj[ "UR_FKrsp_TOPIC"  ].asString();
+        IK_req_topicName = obj[ "UR_IKreq_TOPIC"  ].asString();
+        IK_rsp_topicName = obj[ "UR_IKrsp_TOPIC"  ].asString();
 
         // Robot Desc. Paths
         URDF_full_path = pkgPath + "/" + obj[ "URDF"  ].asString();
@@ -209,6 +215,22 @@ bool FK_IK_Service::init_services(){
     // string servName = "serv" ;
     FKservice = _nh.advertiseService( FK_srv_topicName , &FK_IK_Service::FK_cb , this );
     IKservice = _nh.advertiseService( IK_srv_topicName , &FK_IK_Service::IK_cb , this );
+
+    return 1;
+}
+
+bool FK_IK_Service::init_pub_sub(){
+    if( _DEBUG )  cout << "About to start pub/sub ...";
+    sub_FK_req = _nh.subscribe( FK_req_topicName , 10 , &FK_IK_Service::FK_msg_cb , this );
+    pbl_FK_rsp = _nh.advertise<std_msgs::Float32MultiArray>( FK_rsp_topicName , 10 );
+    sub_IK_req = _nh.subscribe( FK_req_topicName , 10 , &FK_IK_Service::IK_msg_cb , this );
+    pbl_IK_rsp = _nh.advertise<std_msgs::Float32MultiArray>( IK_rsp_topicName , 10 );
+    
+    if( _DEBUG ){
+        vector<string> topics = { FK_req_topicName , FK_rsp_topicName , FK_req_topicName , IK_rsp_topicName };
+        cout << "STARTED!: " << topics << endl;
+
+    }  
 }
 
 bool FK_IK_Service::check_q(){
@@ -245,12 +267,31 @@ KDL::Frame FK_IK_Service::calc_FK( const boost::array<double,6>& jointConfig ){
     return end_effector_pose;
 }
 
+void FK_IK_Service::FK_msg_cb( const std_msgs::Float32MultiArray& requestArr ){
+    boost::array<double, 6>     req;
+    boost::array<double,16>     rsp;
+    std_msgs::Float32MultiArray rspArr;
+
+    if( _DEBUG )  cout << "FK got request: " << requestArr.data << endl;
+
+    for( u_char i = 0 ; i < 6 ; i++ ){  req[i] = requestArr.data[i];  }
+    rsp = KDL_frame_to_response_arr(  calc_FK( req )  );
+    
+    for( u_char i = 0 ; i < 16 ; i++ ){  rspArr.data.push_back( rsp[i] );  }
+
+    if( _DEBUG )  cout << "FK posting response: " << rspArr.data << endl;
+
+    pbl_FK_rsp.publish( rspArr );
+}
+
 bool FK_IK_Service::FK_cb( ur_motion_planning::FK::Request& req, ur_motion_planning::FK::Response& rsp ){
     if( _DEBUG )  cout << "FK service invoked!" << endl;
     
     rsp.rsp.pose = KDL_frame_to_response_arr(  calc_FK( req.req.q_joints )  );
     
     if( _DEBUG )  cout << "FK packed a response: " << rsp.rsp.pose << endl;
+
+    return 1;
 }
 
 boost::array<double,7> FK_IK_Service::calc_IK( const boost::array<double,22>& bigIKarr ){
@@ -283,6 +324,18 @@ boost::array<double,7> FK_IK_Service::calc_IK( const boost::array<double,22>& bi
     }
 
     return KDL_arr_to_response_arr2( result , valid );
+}
+
+void FK_IK_Service::IK_msg_cb( const std_msgs::Float32MultiArray& requestArr ){
+    boost::array<double,22>     req;
+    boost::array<double, 7>     rsp;
+    std_msgs::Float32MultiArray rspArr;
+
+    for( u_char i = 0 ; i < 22 ; i++ ){  req[i] = requestArr.data[i];  }
+    rsp = calc_IK( req );
+
+    for( u_char i = 0 ; i < 7 ; i++ ){  rspArr.data.push_back( rsp[i] );  }
+    pbl_IK_rsp.publish( rspArr );
 }
 
 void unpack_IK( const boost::array<double,7>& ans , boost::array<double,6>& Qjnt , int& valid ){

@@ -4,8 +4,8 @@
 # ~~ Future First ~~
 from __future__ import division # Future imports must be called before everything else, including triple-quote docs!
 
-__progname__ = "simple_PID_on_wall.py"
-__version__  = "2019.04"
+__progname__ = "test.py"
+__version__  = "2020.11"
 __desc__     = "A Finite State Machine for autonomous car motion planning"
 
 """

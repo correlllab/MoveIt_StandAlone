@@ -9,7 +9,7 @@
 [Y] Test: Feed FK to IK
     [Y] Find out if I had to change the input pose to the robot basis somehow
 [~] Confer with Davis to test ROS Bridge
-    [ ] Check if Isaac ROS bridge can subscribe to services
+    [Y] Check if Isaac ROS bridge can subscribe to services
     [ ] If not, then implement basic msg Subscribers/Publishers
     [ ] Create example file
 */
@@ -47,6 +47,8 @@ using std::ifstream;
 #include <urdf/model.h>
 
 /** Messages **/
+#include <std_msgs/Float32MultiArray.h>
+
 #include <ur_motion_planning/FK_req.h>
 #include <ur_motion_planning/FK_rsp.h>
 #include <ur_motion_planning/FK.h>
@@ -78,6 +80,10 @@ class FK_IK_Service{
 
 ros::ServiceServer FKservice;
 ros::ServiceServer IKservice;
+ros::Subscriber    sub_FK_req;
+ros::Publisher     pbl_FK_rsp;
+ros::Subscriber    sub_IK_req;
+ros::Publisher     pbl_IK_rsp;
 
 FK_IK_Service( ros::NodeHandle& _nh );
 
@@ -90,7 +96,11 @@ boost::array<double,7> calc_IK( const boost::array<double,22>& );
 bool FK_cb( ur_motion_planning::FK::Request& req, ur_motion_planning::FK::Response& rsp );
 bool IK_cb( ur_motion_planning::IK::Request& req, ur_motion_planning::IK::Response& rsp );
 
+void FK_msg_cb( const std_msgs::Float32MultiArray& requestArr );
+void IK_msg_cb( const std_msgs::Float32MultiArray& requestArr );
+
 bool init_services();
+bool init_pub_sub();
 
 ~FK_IK_Service();
 
@@ -102,6 +112,10 @@ ros::NodeHandle _nh;
 /** JSON Params **/
 string FK_srv_topicName     ,
        IK_srv_topicName     ,
+       FK_req_topicName     ,
+       FK_rsp_topicName     ,
+       IK_req_topicName     ,
+       IK_rsp_topicName     ,
        URDF_full_path       ,
        SRDF_full_path       ,
        URDF_contents        ,
