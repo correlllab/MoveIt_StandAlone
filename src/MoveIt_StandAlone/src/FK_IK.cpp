@@ -221,10 +221,10 @@ bool FK_IK_Service::init_services(){
 
 bool FK_IK_Service::init_pub_sub(){
     if( _DEBUG )  cout << "About to start pub/sub ...";
-    sub_FK_req = _nh.subscribe( FK_req_topicName , 10 , &FK_IK_Service::FK_msg_cb , this );
-    pbl_FK_rsp = _nh.advertise<std_msgs::Float32MultiArray>( FK_rsp_topicName , 10 );
-    sub_IK_req = _nh.subscribe( FK_req_topicName , 10 , &FK_IK_Service::IK_msg_cb , this );
-    pbl_IK_rsp = _nh.advertise<std_msgs::Float32MultiArray>( IK_rsp_topicName , 10 );
+    sub_FK_req = _nh.subscribe( FK_req_topicName , 10 , &FK_IK_Service::FK_msg_cb , this , ros::TransportHints().tcp().tcpNoDelay() );
+    pbl_FK_rsp = _nh.advertise<std_msgs::Float32MultiArray>( FK_rsp_topicName , 200 );
+    sub_IK_req = _nh.subscribe( FK_req_topicName , 10 , &FK_IK_Service::IK_msg_cb , this , ros::TransportHints().tcp().tcpNoDelay() );
+    pbl_IK_rsp = _nh.advertise<std_msgs::Float32MultiArray>( IK_rsp_topicName , 200 );
     
     if( _DEBUG ){
         vector<string> topics = { FK_req_topicName , FK_rsp_topicName , FK_req_topicName , IK_rsp_topicName };
