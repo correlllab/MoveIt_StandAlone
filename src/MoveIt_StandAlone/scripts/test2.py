@@ -20,20 +20,20 @@ import sys, os.path
 SOURCEDIR = os.path.dirname( os.path.abspath( __file__ ) ) # URL, dir containing source file: http://stackoverflow.com/a/7783326
 PARENTDIR = os.path.dirname( SOURCEDIR )
 # ~~ Path Utilities ~~
-def prepend_dir_to_path( pathName ): sys.path.insert( 0 , pathName ) # Might need this to fetch a lib in a parent directory
+def prepend_dir_to_path( pathName ): """Add to path"""; sys.path.insert( 0 , pathName ) # Might need this to fetch a lib in a parent directory
 
 # ~~~ Imports ~~~
 # ~~ Standard ~~
-from math import pi , sqrt , sin , cos
+from math import pi
 from random import random
 from time import sleep
-import time
+# import time
 
 # ~~ Special ~~
 import numpy as np
 import rospy
-from std_msgs.msg import String , Float32MultiArray , Bool
-from geometry_msgs.msg import PoseStamped, Point, Twist
+from std_msgs.msg import Float32MultiArray 
+# from geometry_msgs.msg import PoseStamped, Point, Twist
 
 # ~~ Local ~~
 
@@ -69,17 +69,25 @@ def load_pose_to_arr( rspArr ):
     return rtnArr
 
 def rand_lo_hi( lo , hi ):
+    """ Return a "uniformly" distributed rand float on the interval [ `lo` , `hi` ) """
     return random() * ( hi - lo ) + lo
 
 def empty_FK_req():
+    """ Return an empty FK request of the form expected by the package """
     FKreq = Float32MultiArray()
     FKreq.data = [ 0.0 for i in range(6) ]
     return FKreq
 
 def empty_IK_req():
+    """ Return an empty IK request of the form expected by the package """
     IKreq = Float32MultiArray()
     IKreq.data = [ 0.0 for i in range(22) ]
     return IKreq
+
+def is_None( arg ):
+    """ Return true if NoneType, otherwise return false """
+    return isinstance( arg , type( None ) )
+
 
 class FK_IK_Tester:
     """ Test the MoveIt Services """
@@ -90,7 +98,8 @@ class FK_IK_Tester:
         rospy.init_node( 'FK_IK_Tester' )
 
         self.pMtx_ans = np.zeros( (4,4) )
-        self.qJnt_ans = np.zeros(   7   )
+        self.qJnt_ans = np.zeros(   6   )
+        self.qJnt_vld = -1
 
         self.freshFK = 0
         self.freshIK = 0
@@ -106,19 +115,14 @@ class FK_IK_Tester:
 
     def FK_cb( self , FKrspMsg ):
         """ Forward kinematics callback """
-        self.pMtx_ans = np.array( FKrspMsg.data )
+        self.pMtx_ans = load_arr_to_pose( FKrspMsg.data )
         self.freshFK  = 1
 
     def IK_cb( self , IKrspMsg ):
         """ Inverse kinematics callback """
-        self.qJnt_ans = np.array( IKrspMsg.data )
+        self.qJnt_ans = np.array( IKrspMsg.data[:6] )
+        self.qJnt_vld = IKrspMsg.data[6]
         self.freshIK  = 1
-
-    def wake_up_channel( self ):
-        req = Float32MultiArray()
-        # req.q_joints = [ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]
-        req.data = [ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]
-        self.pub_FK_req.publish( req )
 
     def test1( self ):
         """ Test the FK and IK services """
@@ -151,14 +155,43 @@ class FK_IK_Tester:
             if _DEBUG:
                 print '.',
                 sys.stdout.flush()
+            if self.freshFK:
+                break
+
+    def pack_IK_req( self , poseHomog , seed ):
+        """ Put IK request in a form ready to send """
+        i = j = 0
+        print poseHomog , '\n' , seed
+        for k in range(22):
+            if k < 16:
+                self.IKreqStrct.data[k] = poseHomog[i,j]
+                j += 1
+                if j%4 == 0:
+                    i += 1
+                    j =  0
+            else:
+                print k , len( self.IKreqStrct.data )
+                print self.IKreqStrct.data[k]
+                print seed[k-16]
+                self.IKreqStrct.data[k] = seed[k-16]
+
+    def IK_send( self , poseHomog , seed = None , N = 10 , sleep_s = 0.01 ):
+        """ Try harder to send an IK request, send up to `N` times """
+        _DEBUG = 1
+        if is_None( seed ):
+            seed = [ 0.0 for i in range(6) ]
+        self.pack_IK_req( poseHomog , seed )
+        for i in range( N ):
+            self.pub_IK_req.publish( self.IKreqStrct )
+            sleep( sleep_s )
+            if _DEBUG:
+                print '.',
+                sys.stdout.flush()
             if self.freshIK:
                 break
 
-    def IK_send( self , poseHomog , seed = None , N = 10 , sleep_s = 0.01 ):
-        pass
-
     def test2( self ):
-
+        """ Test the FK and IK services """
         wins  =  0
         Nrpt  = 200
         FKreq = empty_FK_req()
@@ -168,7 +201,9 @@ class FK_IK_Tester:
 
             print "Iteration" , i+1
 
-            self.FK_send( [ rand_lo_hi( -pi*1.00 , +pi*1.00 ) for i in range(6) ] )
+            testQ = [ rand_lo_hi( -pi*1.00 , +pi*1.00 ) for i in range(6) ]
+
+            self.FK_send( testQ )
 
             # rospy.wait_for_message( 'UR_FK_IK/FKrsp' , Float32MultiArray )
             # self.block_until_FK()
@@ -176,28 +211,19 @@ class FK_IK_Tester:
             print "Request Pose:\n" , self.pMtx_ans
 
             #     # Example Usage: Inverse Kinematics
-            IKreq = IK_req()
-            IKreq.pose   = load_pose_to_arr( FKrsp )
-            if 0:
-                IKreq.q_seed = [ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]
-            else:
-                IKreq.q_seed = np.add( FKreq.q_joints , [ rand_lo_hi( -pi , +pi ) for i in range(6) ] )
-            print IKreq.pose
-            IKrsp = self.IKsrv( IKreq )
-            # print dir( IKrsp )
-            if IKrsp.rsp.valid > 0:
-                wins += 1
+            
+            self.IK_send( self.pMtx_ans , seed = [ rand_lo_hi( -pi , +pi ) for i in range(6) ] , N = 10 , sleep_s = 0.01 )
+            self.block_until_FK()
 
-                FKchk = FK_req()
-                FKchk.q_joints = IKrsp.rsp.q_joints
-                FKcrs = load_arr_to_pose( self.FKsrv( FKchk ).rsp.pose )
-                print "\tJoint Differene:" , np.linalg.norm( np.subtract( np.array( FKreq.q_joints ) , np.array( IKrsp.rsp.q_joints ) ) )
-                print "\tLinear Difference:" , np.linalg.norm( np.subtract( FKrsp[0:3,3] , FKcrs[0:3,3] ) )
+            if  self.qJnt_vld > 0:
+                wins += 1
+                print "\tJoint Differene:" , np.linalg.norm( np.subtract( testQ , self.qJnt_ans[:6] ) )
+                # print "\tLinear Difference:" , np.linalg.norm( np.subtract( FKrsp[0:3,3] , FKcrs[0:3,3] ) )
 
             #     print "Got IK response: " , IKrsp.rsp.q_joints , "is it valid?:" , IKrsp.rsp.valid
             #     print "\n"
 
-            # print wins , "/" , Nrpt , "valid answers"
+            print wins , "/" , Nrpt , "valid answers:" , wins * 1.0 / Nrpt
 
 if __name__ == "__main__":
     node = FK_IK_Tester()
